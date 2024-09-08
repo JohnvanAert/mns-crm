@@ -10,31 +10,30 @@ const LoginPage = () => {
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  
+  try {
+    const response = await axios.post('http://localhost:5001/api/login', {
+      username,
+      password,
+    });
+
+    const { token, user } = response.data;
+    localStorage.setItem('authToken', token);  // Сохраняем токен в localStorage
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;  // Добавляем токен к заголовкам по умолчанию
+
+    console.log('Token saved:', localStorage.getItem('authToken')); // Лог токена
+    console.log('User:', user); // Лог пользователя
     
-    try {
-      const response = await axios.post('http://localhost:5001/api/login', {
-        username,
-        password,
-      });
-  
-      const { token, user } = response.data;
-      localStorage.setItem('authToken', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      // Проверка перед перенаправлением
-      console.log('Token saved:', localStorage.getItem('token'));
-      console.log('User:', user);
-      
-      dispatch(setUser(user));
-      dispatch(fetchUserData());
-  
-      window.location.href = '/user'; // Перенаправление на страницу пользователя
-    } catch (error) {
-      console.error('Login error:', error.response || error.message);
-      setError('Invalid username or password');
-    }
-  };
+    dispatch(setUser(user));
+    dispatch(fetchUserData());
+
+    window.location.href = '/user'; // Перенаправление на страницу пользователя
+  } catch (error) {
+    console.error('Login error:', error.response || error.message);
+    setError('Invalid username or password');
+  }
+};
   
   
 
