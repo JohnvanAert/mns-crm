@@ -1,24 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import AdminDashboard from './components/AdminDashboard';
+import TeamLeaderDashboard from './components/TeamLeaderDashboard';
+import UserDashboard from './components/UserDashboard';
+import LoginPage from './components/login/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute'; // Компонент для защиты маршрутов
 
 function App() {
+  const token = localStorage.getItem('token'); // Получаем токен из localStorage
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Страница логина */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Защищенные маршруты, доступны только при наличии токена */}
+        <Route
+          path="/admin"
+          element={token ? <ProtectedRoute component={AdminDashboard} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/team-leader"
+          element={token ? <ProtectedRoute component={TeamLeaderDashboard} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/user"
+          element={token ? <ProtectedRoute component={UserDashboard} /> : <Navigate to="/login" />}
+        />
+
+        {/* Любой другой маршрут перенаправляется на страницу логина */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
 }
 
