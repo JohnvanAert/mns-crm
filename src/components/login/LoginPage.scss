@@ -1,0 +1,48 @@
+// Переопределение переменных перед импортом Bootstrap
+$primary: #ff5733;
+$lightgray: #eaeaea;
+
+// Импорт Bootstrap
+@import "node_modules/bootstrap/scss/bootstrap";
+
+.navStyle {
+    background-color: white;
+}
+
+.logFormDiv {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.logForm {
+    height: 250px;
+    width: 40%;
+    background-color: $lightgray;
+    border-radius: 20px;
+    padding: 15px;
+    label {
+        padding: 3px;
+    }
+    input {
+        border-radius: 5px;
+        padding: 3px;
+        width: 100%;
+    }
+    button {
+        margin: 10px;
+        border-radius: 5px;
+        background-color: #8ef155;
+    }
+}
+
+.logoType {
+    width: 75px;
+    height: 80px;
+}
+.loginNforget {
+    display: flex;
+    justify-content: space-around;
+}
+ .forgot {
+    float: right;
+ }
