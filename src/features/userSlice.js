@@ -6,6 +6,7 @@ import api from '../api/axiosConfig'; // Используем настроенн
 export const fetchUserData = createAsyncThunk('user/fetchUserData', async () => {
   const response = await api.get('/api/user');
   // Здесь '/api/user' — это эндпоинт вашего бекенда
+  console.log('Response from server:', response.data); // Лог ответа сервера
   return response.data;
 });
 

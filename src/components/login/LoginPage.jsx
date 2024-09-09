@@ -34,8 +34,6 @@ const LoginPage = () => {
     setError('Invalid username or password');
   }
 };
-  
-  
 
   return (
     <div>

@@ -1,36 +1,34 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData } from '../features/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const UserDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  // Получаем состояние пользователя из Redux
-  const { username, loading, error } = useSelector((state) => state.user);
+
+  const { userData, status } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) {
-      console.log('No token found, redirecting to login');
-      navigate('/login'); // Если токен не найден, перенаправляем на страницу входа
+      navigate('/login');
     } else {
-      dispatch(fetchUserData()); // Загружаем данные о пользователе
+      dispatch(fetchUserData());
     }
   }, [dispatch, navigate]);
 
-  if (loading) {
-    return <div>Загрузка данных...</div>; // Пока данные загружаются, отображаем сообщение
-  }
-
-  if (error) {
-    return <div>Ошибка при загрузке данных: {error}</div>; // Обрабатываем ошибки
+  if (status === 'loading') {
+    return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <h1>Добро пожаловать, {username || 'Гость'}!</h1>
+      {userData ? (
+        <h1>Добро пожаловать, {userData.username}!</h1>
+      ) : (
+        <h1>Добро пожаловать, Гость!</h1>
+      )}
     </div>
   );
 };
