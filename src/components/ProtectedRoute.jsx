@@ -1,39 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 
-const ProtectedRoute = ({ component: Component }) => {
-  const token = localStorage.getItem('authToken');
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+const ProtectedRoute = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      axios.get('http://localhost:5001/api/validate-token', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      .then(() => {
-        setIsAuthenticated(true);
-      })
-      .catch((error) => {
-        console.log('Token validation failed:', error.response.data); // Лог ошибки
-        localStorage.removeItem('authToken');
+    const validateSession = async () => {
+      try {
+        // Используем правильный маршрут для проверки сессии
+        const response = await api.get('/api/check-session');
+        if (response.data.isAuthenticated) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
         setIsAuthenticated(false);
-      });
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [token]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (isAuthenticated === null) {
-    // Можно добавить спиннер для загрузки, пока идет проверка токена
-    return <div>Loading...</div>;
-  }
+    validateSession();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
 
-  return <Component />;
+  return children;
 };
 
 export default ProtectedRoute;

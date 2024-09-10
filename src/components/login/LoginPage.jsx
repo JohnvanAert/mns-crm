@@ -1,63 +1,62 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { setUser, fetchUserData } from '../../features/userSlice'; // Импорт экшенов из userSlice
+import { useNavigate } from 'react-router-dom';
+import api from '../../api/axiosConfig'; // Проверьте путь
+import './LoginPage.scss';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  
-  try {
-    const response = await axios.post('http://localhost:5001/api/login', {
-      username,
-      password,
-    });
+    e.preventDefault();
+    try {
+      console.log({ username, password });
+      const response = await api.post('/api/login', { username, password });
 
-    const { token, user } = response.data;
-    localStorage.setItem('authToken', token);  // Сохраняем токен в localStorage
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;  // Добавляем токен к заголовкам по умолчанию
+      // Если сессия активна, проверяем пользователя и его роль
+      const checkSessionResponse = await api.get('/api/check-session');
+      if (checkSessionResponse.data.isAuthenticated) {
+        const user = checkSessionResponse.data.user;
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
 
-    console.log('Token saved:', localStorage.getItem('authToken')); // Лог токена
-    console.log('User:', user); // Лог пользователя
-    
-    dispatch(setUser(user));
-    dispatch(fetchUserData());
-
-    window.location.href = '/user'; // Перенаправление на страницу пользователя
-  } catch (error) {
-    console.error('Login error:', error.response || error.message);
-    setError('Invalid username or password');
-  }
-};
+        // Перенаправление в зависимости от роли пользователя
+        if (user.role === 'admin') {
+          navigate('/admin');
+        } else if (user.role === 'teamleader') {
+          navigate('/team-leader');
+        } else {
+          navigate('/user');
+        }
+      } else {
+        setErrorMessage('Session not valid.');
+      }
+    } catch (error) {
+      setErrorMessage('Invalid username or password');
+    }
+  };
 
   return (
-    <div>
+    <div className="login-page">
       <form onSubmit={handleLogin}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Введите логин"
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Введите пароль"
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <h2>Login</h2>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+        />
         <button type="submit">Login</button>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </form>
     </div>
   );

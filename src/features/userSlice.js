@@ -1,47 +1,33 @@
 // src/features/userSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../api/axiosConfig'; // Используем настроенный API клиент
-
-// Асинхронный запрос для получения данных пользователя
-export const fetchUserData = createAsyncThunk('user/fetchUserData', async () => {
-  const response = await api.get('/api/user');
-  // Здесь '/api/user' — это эндпоинт вашего бекенда
-  console.log('Response from server:', response.data); // Лог ответа сервера
-  return response.data;
-});
+import { createSlice } from '@reduxjs/toolkit';
 
 const userSlice = createSlice({
   name: 'user',
   initialState: {
-    userData: null,
-    status: 'idle',
-    error: null,
+    profile: null,  // Здесь можно хранить информацию о профиле
+    settings: {},   // Настройки пользователя
+    status: 'idle', // Состояние загрузки данных
+    error: null,    // Ошибки
   },
   reducers: {
-    // Экшен для установки пользователя вручную (например, при авторизации)
-    setUser: (state, action) => {
-      state.userData = action.payload;
+    // Экшен для установки данных профиля пользователя
+    setProfile: (state, action) => {
+      state.profile = action.payload;
     },
-    logoutUser: (state) => {
-      state.userData = null;
+    // Экшен для изменения настроек пользователя
+    updateSettings: (state, action) => {
+      state.settings = { ...state.settings, ...action.payload };
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchUserData.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchUserData.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.userData = action.payload;
-      })
-      .addCase(fetchUserData.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      });
+    // Экшен для сброса профиля (например, при логауте)
+    clearProfile: (state) => {
+      state.profile = null;
+      state.settings = {};
+    },
   },
 });
 
-export const { setUser, logoutUser } = userSlice.actions;
+// Экспортируем экшены
+export const { setProfile, updateSettings, clearProfile } = userSlice.actions;
 
+// Экспортируем редьюсер
 export default userSlice.reducer;
