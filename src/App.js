@@ -6,16 +6,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './components/AdminDashboard';
 import TeamLeaderDashboard from './components/TeamLeaderDashboard';
 import UserDashboard from './components/UserDashboard';
+import Unauthorized from './components/Unauthorized';
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -23,7 +25,7 @@ const App = () => {
         <Route
           path="/teamleader"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="team_leader">
               <TeamLeaderDashboard />
             </ProtectedRoute>
           }
@@ -31,7 +33,7 @@ const App = () => {
         <Route
           path="/user"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['user']}>
               <UserDashboard />
             </ProtectedRoute>
           }

@@ -1,5 +1,6 @@
 // src/features/userSlice.js
 import { createSlice } from '@reduxjs/toolkit';
+import { createSelector } from 'reselect'; // Импортируем createSelector
 
 const userSlice = createSlice({
   name: 'user',
@@ -25,6 +26,12 @@ const userSlice = createSlice({
     },
   },
 });
+
+// Селектор для получения данных профиля пользователя
+export const selectUserProfile = createSelector(
+  (state) => state.user, // Доступ к данным среза user
+  (user) => user.profile // Получаем профиль пользователя
+);
 
 // Экспортируем экшены
 export const { setProfile, updateSettings, clearProfile } = userSlice.actions;

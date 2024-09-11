@@ -14,7 +14,6 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      console.log({ username, password });
       const response = await api.post('/api/login', { username, password });
 
       // Если сессия активна, проверяем пользователя и его роль
@@ -26,8 +25,8 @@ const LoginPage = () => {
         // Перенаправление в зависимости от роли пользователя
         if (user.role === 'admin') {
           navigate('/admin');
-        } else if (user.role === 'teamleader') {
-          navigate('/team-leader');
+        } else if (user.role === 'team_leader') {
+          navigate('/teamleader');
         } else {
           navigate('/user');
         }

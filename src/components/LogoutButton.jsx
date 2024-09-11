@@ -9,7 +9,7 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-      await api.post('/logout');
+      await api.post('/api/logout');
       dispatch({ type: 'LOGOUT' });
       navigate('/login');
     } catch (error) {

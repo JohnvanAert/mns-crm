@@ -1,18 +1,25 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData } from '../features/authSlice'; // Импорт fetchUserData из authSlice
+import { selectUserProfile, setProfile } from '../features/userSlice'; // Импортируем селектор и экшен из userSlice
+import LogoutButton from './LogoutButton';
 
 const UserDashboard = () => {
   const dispatch = useDispatch();
 
-  // Извлекаем данные о пользователе из auth или user slice
-  const { user, status, error } = useSelector((state) => state.auth || {});  // auth может быть заменено на user, в зависимости от структуры
+  // Извлекаем данные профиля пользователя из userSlice
+  const { profile, status, error } = useSelector((state) => state.user);  // Используем user вместо auth
 
   useEffect(() => {
-    if (!user) {
-      dispatch(fetchUserData());
+    if (!profile) {
+      dispatch(fetchUserData()).then((response) => {
+        // Когда данные загружены, сохраняем их в userSlice
+        if (response.payload) {
+          dispatch(setProfile(response.payload));
+        }
+      });
     }
-  }, [dispatch, user]);
+  }, [dispatch, profile]);
 
   if (status === 'loading') {
     return <div>Загрузка данных...</div>;
@@ -24,7 +31,8 @@ const UserDashboard = () => {
 
   return (
     <div>
-      <h1>Добро пожаловать, {user ? user.username : 'Гость'}!</h1>
+      <h1>Добро пожаловать, {profile ? profile.username : 'Гость'}!</h1>
+      <LogoutButton />
     </div>
   );
 };
