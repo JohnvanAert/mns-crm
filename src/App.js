@@ -3,9 +3,9 @@ import { Navigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/login/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminDashboard from './components/AdminDashboard';
-import TeamLeaderDashboard from './components/TeamLeaderDashboard';
-import UserDashboard from './components/UserDashboard';
+import AdminDashboard from './components/admin/AdminDashboard';
+import TeamLeaderDashboard from './components/teamleader/TeamLeaderDashboard';
+import UserDashboard from './components/user/UserDashboard';
 import Unauthorized from './components/Unauthorized';
 
 const App = () => {

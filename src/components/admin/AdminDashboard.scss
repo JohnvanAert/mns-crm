@@ -1,0 +1,50 @@
+.teamsTable {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.custom-table {
+    width: 40%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+  }
+  
+  .custom-table thead th {
+    text-align: center;
+    color: white; // Белый текст в заголовках
+    font-weight: bold;
+  }
+
+  .custom-table thead tr {
+    background-color: #1a202c; // Темный фон для заголовков
+    color: white; // Белый текст в заголовках
+    font-weight: bold;
+  }
+  
+  .custom-table th,
+  .custom-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd; // Разделение строк
+  }
+  
+  .custom-table tbody tr {
+    background-color: #2d3748; // Темно-серый фон для строк
+    color: #f0f0f0; // Светлый текст
+  }
+  
+  .custom-table tbody tr:nth-of-type(even) {
+    background-color: #4a5568; // Чередующийся цвет для четных строк
+  }
+  
+  .custom-table tbody tr:hover {
+    background-color: #718096; // Цвет при наведении
+  }
+  
+  .custom-table td {
+    font-size: 16px;
+    text-align: center; // Центровка текста в ячейках данных
+  }
+  
