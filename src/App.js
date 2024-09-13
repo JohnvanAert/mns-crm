@@ -7,6 +7,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import TeamLeaderDashboard from './components/teamleader/TeamLeaderDashboard';
 import UserDashboard from './components/user/UserDashboard';
 import Unauthorized from './components/Unauthorized';
+import AddRequestForm from './components/user/AddRequestForm';
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/user/add-request" element={<AddRequestForm />} />
         <Route
           path="/admin"
           element={

@@ -1,5 +1,4 @@
 // src/features/teamSlice.js
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api/axiosConfig'; // Используем axios для запросов
 

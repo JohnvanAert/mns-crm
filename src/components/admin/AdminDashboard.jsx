@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axiosConfig';
-import LogoutButton from '../LogoutButton';
 import './AdminDashboard.scss';
+import Navbar from '../Navbar/Navbar';
 
 const AdminDashboard = () => {
   const [teamsData, setTeamsData] = useState([]);
@@ -9,7 +9,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchTeamsData = async () => {
       try {
-        const response = await api.get('/admin/teams');
+        const response = await api.get('/teams');
         setTeamsData(response.data);
       } catch (error) {
         console.error('Error fetching teams data:', error);
@@ -53,9 +53,11 @@ const AdminDashboard = () => {
 
   return (
     <div>
+      <Navbar />
+      <div className='headSet'>
       <h1>Admin Dashboard</h1>
-      <LogoutButton />
-      <div className='teamsTable'>
+      </div>
+      <div className='midSet'>
       {Object.keys(groupedTeams).map(teamName =>
         renderTable(teamName, groupedTeams[teamName])
       )}

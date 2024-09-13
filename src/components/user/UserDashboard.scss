@@ -1,3 +1,13 @@
+.headSet {
+  display: flex;
+  justify-content: space-around;
+}
+
+.midSet {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .user-dashboard {
     margin: 20px;
     padding: 20px;
