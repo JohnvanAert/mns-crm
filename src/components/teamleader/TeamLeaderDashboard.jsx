@@ -32,12 +32,39 @@ const TeamLeaderDashboard = () => {
     fetchRequests();
   }, []);
 
+  // Функция для одобрения заявки
+  const handleApprove = async (requestId) => {
+    try {
+      await api.put(`/teamleader/requests/${requestId}/approve`);
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === requestId ? { ...req, status: 'approved' } : req
+        )
+      );
+    } catch (error) {
+      console.error('Error approving request:', error);
+    }
+  };
+
+  // Функция для отклонения заявки
+  const handleReject = async (requestId) => {
+    try {
+      await api.put(`/teamleader/requests/${requestId}/reject`);
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === requestId ? { ...req, status: 'rejected' } : req
+        )
+      );
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+    }
+  };
+
   return (
-    <div>
+    <div className='teamleadDashboard'>
       <Navbar />
       <div className="headSet">
         <h1>Team Leader Dashboard</h1>
-          
       </div>
       <div className="midSet">
         <h2>{teamData.length > 0 && teamData[0].team_name}</h2>
@@ -73,6 +100,7 @@ const TeamLeaderDashboard = () => {
               <th>Ссылка</th>
               <th>Статус</th>
               <th>webmaster</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -93,11 +121,25 @@ const TeamLeaderDashboard = () => {
                   </td>
                   <td>{request.status}</td>
                   <td>{request.user_id}</td>
+                  <td>
+                    <button
+                      onClick={() => handleApprove(request.id)}
+                      disabled={request.status !== 'pending'}
+                    >
+                      Одобрить
+                    </button>
+                    <button
+                      onClick={() => handleReject(request.id)}
+                      disabled={request.status !== 'pending'}
+                    >
+                      Отклонить
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4">Заявки отсутствуют</td>
+                <td colSpan="7">Заявки отсутствуют</td>
               </tr>
             )}
           </tbody>

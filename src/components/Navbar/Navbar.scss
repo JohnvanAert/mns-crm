@@ -1,90 +1,45 @@
+/* Navbar.scss */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #24292e;
-    padding: 10px 20px;
-    color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+
+.navbar-logo img {
+  width: 50px;
+  height: auto;
 }
 
-  .navbar-left {
-    display: flex;
-    align-items: center;
-  }
+.navbar-profile {
+  position: relative;
+}
 
-  .navbar-logo {
-    width: 32px;
-    margin-right: 15px;
-  }
-  
-  .navbar-logo img {
-    width: 100px; /* Задайте нужный размер */
-    height: auto;
-  }
-  
-  
-  .navbar-search {
-    background-color: #404448;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 6px;
-    margin-right: 20px;
-    color: white;
-  }
-  
-  .navbar-search::placeholder {
-    color: #bbb;
-  }
-  
-  .navbar-left a {
-    margin-right: 20px;
-    color: white;
-    text-decoration: none;
-  }
-  
-  .navbar-right {
-    display: flex;
-    align-items: center;
-  }
-  
-  .navbar-button {
-    background-color: transparent;
-    border: none;
-    color: white;
-    font-size: 18px;
-    margin-left: 10px;
-    cursor: pointer;
-  }
-  
-  .navbar-profile {
-    position: relative;
-    margin-left: 15px;
-    cursor: pointer;
-  }
-  
-  .navbar-profile-icon {
-    width: 32px;
-    border-radius: 50%;
-  }
-  
-  .navbar-dropdown {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background-color: white;
-    color: black;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .navbar-dropdown a {
-    display: block;
-    padding: 10px;
-    color: black;
-    text-decoration: none;
-  }
-  
-  .navbar-dropdown a:hover {
-    background-color: #f0f0f0;
-  }
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-menu a, .dropdown-menu button {
+  padding: 8px;
+  text-align: left;
+  text-decoration: none;
+  color: black;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover, .dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
+}

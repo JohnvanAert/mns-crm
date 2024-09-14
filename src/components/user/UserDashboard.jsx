@@ -34,7 +34,7 @@ const UserDashboard = () => {
   }
 
   return (
-    <div>
+    <div className='userDashboard'>
       <Navbar />
       <div className='headSet'>
         <h1>Команда пользователя</h1>

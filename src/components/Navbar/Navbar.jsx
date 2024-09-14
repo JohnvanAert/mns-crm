@@ -3,11 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { useDispatch } from 'react-redux';
 import './Navbar.scss';
-import logo from '../../img/logo.png'; // Логотип
-import profilePic from '../../img/profile.webp'; // Иконка профиля
+import logo from '../../img/logo.png';
 
 const Navbar = () => {
-  const [dropdownVisible, setDropdownVisible] = useState(false); // Состояние для управления видимостью меню профиля
+  const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -21,7 +20,6 @@ const Navbar = () => {
     }
   };
 
-  // Обработка переключения видимости выпадающего списка
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
   };
@@ -29,18 +27,18 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <img src={logo} style={{width: "100px;"}} alt="Logo" />
+        <img src={logo} alt="Logo" />
       </div>
       <div className="navbar-links">
-        {/* links */}
+        {/* Ссылки */}
       </div>
       <div className="navbar-profile">
-        <button>
-          Profile
-        </button>
+        <img src="" alt="" />
+        <input type="button" onClick={toggleDropdown} value="Menu" />
         {dropdownVisible && (
           <div className="dropdown-menu">
             <Link to="/profile">Профиль</Link>
+            <Link to="/expenses">Расходы</Link>
             <button onClick={handleLogout}>Выйти</button>
           </div>
         )}

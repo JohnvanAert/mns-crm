@@ -52,7 +52,7 @@ const AdminDashboard = () => {
   }, {});
 
   return (
-    <div>
+    <div className='adminDashboard'>
       <Navbar />
       <div className='headSet'>
       <h1>Admin Dashboard</h1>
