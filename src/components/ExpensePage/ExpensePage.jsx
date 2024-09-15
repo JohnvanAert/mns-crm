@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosConfig';
-import './ExpensePage.scss'
+import './ExpensePage.scss';
 import Navbar from '../Navbar/Navbar';
 
 const ExpensesPage = () => {
@@ -10,6 +10,8 @@ const ExpensesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);  // Текущая страница
   const [totalPages, setTotalPages] = useState(1);  // Общее количество страниц
   const itemsPerPage = 10;  // Количество записей на страницу
+  const [sortBy, setSortBy] = useState('created_at');  // Поле для сортировки
+  const [sortOrder, setSortOrder] = useState('asc');  // Порядок сортировки
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -19,6 +21,8 @@ const ExpensesPage = () => {
           params: {
             limit: itemsPerPage,
             offset: (currentPage - 1) * itemsPerPage,
+            sortBy: sortBy,  // Поле для сортировки
+            sortOrder: sortOrder,  // Порядок сортировки
           },
         });
 
@@ -32,7 +36,7 @@ const ExpensesPage = () => {
     };
 
     fetchExpenses();
-  }, [currentPage]);  // Зависимость от currentPage для перезагрузки данных при изменении страницы
+  }, [currentPage, sortBy, sortOrder]);  // Зависимость от currentPage, sortBy и sortOrder для перезагрузки данных при изменении
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -46,6 +50,10 @@ const ExpensesPage = () => {
     }
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(prevSortOrder => (prevSortOrder === 'asc' ? 'desc' : 'asc'));
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -56,8 +64,22 @@ const ExpensesPage = () => {
 
   return (
     <div>
-        <Navbar />
-      <h2>Expenses</h2>
+      <Navbar />
+      <h2>Расходы</h2>
+
+      {/* Сортировка */}
+      <div className="sort-controls">
+        <label>Sort by: </label>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+          <option value="created_at">Дата</option>
+          <option value="amount">Сумме</option>
+          <option value="username">Имя</option>
+          {expenses[0]?.team_name && <option value="team_name">Имя команды</option>}
+        </select>
+        <button onClick={toggleSortOrder}>
+          {sortOrder === 'asc' ? 'Возрастание' : 'Убывание'}
+        </button>
+      </div>
 
       {expenses.length === 0 ? (
         <p>Не найдено расходов.</p>

@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-const password = 'grok';
+const password = 'srok';
 const saltRounds = 10; // This defines the strength of the salt
 
 bcrypt.hash(password, saltRounds, (err, hash) => {
