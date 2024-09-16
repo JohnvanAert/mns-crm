@@ -13,6 +13,13 @@ const ExpensesPage = () => {
   const [sortBy, setSortBy] = useState('created_at');  // Поле для сортировки
   const [sortOrder, setSortOrder] = useState('asc');  // Порядок сортировки
 
+  const [webmasterFilter, setWebmasterFilter] = useState('');  // Фильтр по вебмастеру
+  const [amountFilter, setAmountFilter] = useState('');  // Фильтр по сумме
+
+  // Новые состояния для выбора даты
+  const [startDate, setStartDate] = useState('');  // Начальная дата
+  const [endDate, setEndDate] = useState('');  // Конечная дата
+
   useEffect(() => {
     const fetchExpenses = async () => {
       setLoading(true);
@@ -21,13 +28,17 @@ const ExpensesPage = () => {
           params: {
             limit: itemsPerPage,
             offset: (currentPage - 1) * itemsPerPage,
-            sortBy: sortBy,  // Поле для сортировки
-            sortOrder: sortOrder,  // Порядок сортировки
+            sortBy: sortBy,
+            sortOrder: sortOrder,
+            webmaster: webmasterFilter || null,  // Фильтрация по вебмастеру
+            amount: amountFilter || null,  // Фильтрация по сумме
+            startDate: startDate || null,  // Фильтрация по начальной дате
+            endDate: endDate || null,  // Фильтрация по конечной дате
           },
         });
 
         setExpenses(response.data.expenses);
-        setTotalPages(Math.ceil(response.data.totalItems / itemsPerPage));  // Рассчитываем общее количество страниц
+        setTotalPages(Math.ceil(response.data.totalItems / itemsPerPage));
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch expenses');
@@ -36,7 +47,7 @@ const ExpensesPage = () => {
     };
 
     fetchExpenses();
-  }, [currentPage, sortBy, sortOrder]);  // Зависимость от currentPage, sortBy и sortOrder для перезагрузки данных при изменении
+  }, [currentPage, sortBy, sortOrder, webmasterFilter, amountFilter, startDate, endDate]);  // Добавляем зависимости от фильтров
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -50,8 +61,34 @@ const ExpensesPage = () => {
     }
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(prevSortOrder => (prevSortOrder === 'asc' ? 'desc' : 'asc'));
+  const handleSortChange = (field) => {
+    if (sortBy === field) {
+      setSortOrder(prevSortOrder => (prevSortOrder === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const handleWebmasterFilterChange = (e) => {
+    setWebmasterFilter(e.target.value);
+  };
+
+  const handleAmountFilterChange = (e) => {
+    setAmountFilter(e.target.value);
+  };
+
+  // Обработчики для выбора диапазона дат
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
+
+  const handleFilterSubmit = () => {
+    setCurrentPage(1);  // Сбрасываем на первую страницу при фильтрации
   };
 
   if (loading) {
@@ -67,18 +104,36 @@ const ExpensesPage = () => {
       <Navbar />
       <h2>Расходы</h2>
 
-      {/* Сортировка */}
-      <div className="sort-controls">
-        <label>Sort by: </label>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
-          <option value="created_at">Дата</option>
-          <option value="amount">Сумме</option>
-          <option value="username">Имя</option>
-          {expenses[0]?.team_name && <option value="team_name">Имя команды</option>}
-        </select>
-        <button onClick={toggleSortOrder}>
-          {sortOrder === 'asc' ? 'Возрастание' : 'Убывание'}
-        </button>
+      {/* Фильтры */}
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Webmaster ID"
+          value={webmasterFilter}
+          onChange={handleWebmasterFilterChange}
+        />
+        <input
+          type="text"
+          placeholder="Amount"
+          value={amountFilter}
+          onChange={handleAmountFilterChange}
+        />
+
+        {/* Фильтры по датам */}
+        <input
+          type="date"
+          value={startDate}
+          onChange={handleStartDateChange}
+          placeholder="Start Date"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={handleEndDateChange}
+          placeholder="End Date"
+        />
+
+        <button onClick={handleFilterSubmit}>Применить фильтры</button>
       </div>
 
       {expenses.length === 0 ? (
@@ -94,9 +149,17 @@ const ExpensesPage = () => {
                 <th>Количество</th>
                 <th>Статус</th>
                 <th>Ссылка</th>
-                <th>Дата создания</th>
-                <th>Имя пользователя</th>
-                {expenses[0]?.team_name && <th>Team Name</th>}
+                <th onClick={() => handleSortChange('created_at')}>
+                  Дата создания {sortBy === 'created_at' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSortChange('username')}>
+                  Имя пользователя {sortBy === 'username' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                {expenses[0]?.team_name && (
+                  <th onClick={() => handleSortChange('team_name')}>
+                    Имя команды {sortBy === 'team_name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>

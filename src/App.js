@@ -9,6 +9,8 @@ import UserDashboard from './components/user/UserDashboard';
 import Unauthorized from './components/Unauthorized';
 import AddRequestForm from './components/user/AddRequestForm';
 import ExpensesPage from './components/ExpensePage/ExpensePage';
+import ProfilePage from './components/profile/ProfilePage';
+import ProductsPage from './components/product/ProductPage';
 
 const App = () => {
   return (
@@ -17,6 +19,8 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/expenses" element={<ExpensesPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/products" element={<ProductsPage />} />
         <Route path="/user/add-request" element={<AddRequestForm />} />
         <Route
           path="/admin"

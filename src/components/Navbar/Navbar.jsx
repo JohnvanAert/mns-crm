@@ -37,6 +37,7 @@ const Navbar = () => {
         <input type="button" onClick={toggleDropdown} value="Menu" />
         {dropdownVisible && (
           <div className="dropdown-menu">
+            <Link to="/products">Продукты</Link>
             <Link to="/profile">Профиль</Link>
             <Link to="/expenses">Расходы</Link>
             <button onClick={handleLogout}>Выйти</button>
