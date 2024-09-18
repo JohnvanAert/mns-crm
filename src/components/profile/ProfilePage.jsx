@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../api/axiosConfig';
 import './ProfilePage.scss';
 import Navbar from '../Navbar/Navbar';
 
@@ -9,6 +9,7 @@ const ProfilePage = () => {
         email: '',
         password: '',
     });
+    const [isEditable, setIsEditable] = useState(false); // Добавляем состояние для редактирования
 
     // Fetch user data when the component mounts
     useEffect(() => {
@@ -39,6 +40,7 @@ const ProfilePage = () => {
             const response = await axios.post('/api/profile/update', formData);
             if (response.data.success) {
                 alert('Profile updated successfully!');
+                setIsEditable(false); // После успешного сохранения выключаем режим редактирования
             } else {
                 alert('Failed to update profile.');
             }
@@ -48,48 +50,66 @@ const ProfilePage = () => {
         }
     };
 
+    const handleEditClick = () => {
+        setIsEditable(true); // Включаем режим редактирования
+    };
+
+    const handleCancelClick = () => {
+        setIsEditable(false); // Отключаем режим редактирования
+        // Можно также обновить поля до начальных значений, если это нужно
+    };
+
     return (
         <div>
             <Navbar />
-        <div className="profile-page">
-            
-            <h2>Edit your Profile</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="profile-info">
-                    <div className="form-group">
-                        <label>Username:</label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleInputChange}
-                        />
+            <div className="profile-page">
+                <h2>Edit your Profile</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="profile-info">
+                        <div className="form-group">
+                            <label>Username:</label>
+                            <input
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                disabled={!isEditable} // Поле заблокировано, если не в режиме редактирования
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Email:</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                disabled={!isEditable} // Поле заблокировано, если не в режиме редактирования
+                            />
+                        </div>
+                        {isEditable && ( // Поле для пароля показывается только при редактировании
+                            <div className="form-group">
+                                <label>Password (leave blank to keep unchanged):</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                        )}
                     </div>
-                    <div className="form-group">
-                        <label>Email:</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                        />
+                    <div className="profile-actions">
+                        {isEditable ? (
+                            <>
+                                <button type="submit" className="save-btn">Save</button>
+                                <button type="button" className="cancel-btn" onClick={handleCancelClick}>Cancel</button>
+                            </>
+                        ) : (
+                            <button type="button" className="edit-btn" onClick={handleEditClick}>Edit</button>
+                        )}
                     </div>
-                    <div className="form-group">
-                        <label>Password (leave blank to keep unchanged):</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                </div>
-                <div className="profile-actions">
-                    <button type="submit" className="save-btn">Save</button>
-                    <button type="button" className="cancel-btn">Cancel</button>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
         </div>
     );
 };

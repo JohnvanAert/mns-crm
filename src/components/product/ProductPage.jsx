@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosConfig';
 import './ProductPage.scss'; // Import the SCSS file
 import ProductCard from './ProductCard';
+import Navbar from '../Navbar/Navbar';
+
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -86,7 +88,11 @@ const ProductsPage = () => {
   }
 
   return (
+    <div>
+      <Navbar />
+    
     <div className="products-page">
+      
       <h1 className="products-page__title">Products</h1>
 
       {/* Form for adding new products */}
@@ -184,6 +190,7 @@ const ProductsPage = () => {
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+    </div>
     </div>
   );
 };
