@@ -5,6 +5,7 @@ import Navbar from '../Navbar/Navbar';
 
 const ExpensesPage = () => {
   const [expenses, setExpenses] = useState([]);
+  const [teams, setTeams] = useState([]); // State for storing team options
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);  // Текущая страница
@@ -12,13 +13,24 @@ const ExpensesPage = () => {
   const itemsPerPage = 10;  // Количество записей на страницу
   const [sortBy, setSortBy] = useState('created_at');  // Поле для сортировки
   const [sortOrder, setSortOrder] = useState('asc');  // Порядок сортировки
+  
 
-  const [webmasterFilter, setWebmasterFilter] = useState('');  // Фильтр по вебмастеру
-  const [amountFilter, setAmountFilter] = useState('');  // Фильтр по сумме
+  // State для временных значений фильтров
+  const [tempWebmasterFilter, setTempWebmasterFilter] = useState('');  
+  const [tempAmountFilter, setTempAmountFilter] = useState('');
+  const [tempTeamFilter, setTempTeamFilter] = useState('');
+  const [tempStartDate, setTempStartDate] = useState('');
+  const [tempEndDate, setTempEndDate] = useState('');
+  
 
-  // Новые состояния для выбора даты
-  const [startDate, setStartDate] = useState('');  // Начальная дата
-  const [endDate, setEndDate] = useState('');  // Конечная дата
+  // State для примененных фильтров
+  const [appliedFilters, setAppliedFilters] = useState({
+    webmasterFilter: '',
+    amountFilter: '',
+    teamFilter: '',
+    startDate: '',
+    endDate: '',
+  });
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -30,10 +42,11 @@ const ExpensesPage = () => {
             offset: (currentPage - 1) * itemsPerPage,
             sortBy: sortBy,
             sortOrder: sortOrder,
-            webmaster: webmasterFilter || null,  // Фильтрация по вебмастеру
-            amount: amountFilter || null,  // Фильтрация по сумме
-            startDate: startDate || null,  // Фильтрация по начальной дате
-            endDate: endDate || null,  // Фильтрация по конечной дате
+            webmaster: appliedFilters.webmasterFilter || null,  // Используем примененные фильтры
+            amount: appliedFilters.amountFilter || null,
+            team: appliedFilters.teamFilter || null,
+            startDate: appliedFilters.startDate || null,
+            endDate: appliedFilters.endDate || null,
           },
         });
 
@@ -47,7 +60,21 @@ const ExpensesPage = () => {
     };
 
     fetchExpenses();
-  }, [currentPage, sortBy, sortOrder, webmasterFilter, amountFilter, startDate, endDate]);  // Добавляем зависимости от фильтров
+  }, [currentPage, sortBy, sortOrder, appliedFilters]);  // Добавляем зависимости от примененных фильтров
+
+  // Fetch the list of teams when component mounts
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get('/api/teams');
+        setTeams(response.data.teams);  // Assuming API returns an array of team objects
+      } catch (error) {
+        console.error('Failed to fetch teams:', error);
+      }
+    };
+
+    fetchTeams();
+  }, []);
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -70,24 +97,15 @@ const ExpensesPage = () => {
     }
   };
 
-  const handleWebmasterFilterChange = (e) => {
-    setWebmasterFilter(e.target.value);
-  };
-
-  const handleAmountFilterChange = (e) => {
-    setAmountFilter(e.target.value);
-  };
-
-  // Обработчики для выбора диапазона дат
-  const handleStartDateChange = (e) => {
-    setStartDate(e.target.value);
-  };
-
-  const handleEndDateChange = (e) => {
-    setEndDate(e.target.value);
-  };
-
   const handleFilterSubmit = () => {
+    // Применяем фильтры
+    setAppliedFilters({
+      webmasterFilter: tempWebmasterFilter,
+      amountFilter: tempAmountFilter,
+      teamFilter: tempTeamFilter,
+      startDate: tempStartDate,
+      endDate: tempEndDate,
+    });
     setCurrentPage(1);  // Сбрасываем на первую страницу при фильтрации
   };
 
@@ -109,27 +127,36 @@ const ExpensesPage = () => {
         <input
           type="text"
           placeholder="Webmaster ID"
-          value={webmasterFilter}
-          onChange={handleWebmasterFilterChange}
+          value={tempWebmasterFilter}
+          onChange={(e) => setTempWebmasterFilter(e.target.value)}
         />
         <input
           type="text"
           placeholder="Amount"
-          value={amountFilter}
-          onChange={handleAmountFilterChange}
+          value={tempAmountFilter}
+          onChange={(e) => setTempAmountFilter(e.target.value)}
         />
+
+        <select value={tempTeamFilter} onChange={(e) => setTempTeamFilter(e.target.value)}>
+          <option value="">All Teams</option>
+          {teams.map((team) => (
+            <option key={team.id} value={team.id}>
+              {team.name}
+            </option>
+          ))}
+        </select>
 
         {/* Фильтры по датам */}
         <input
           type="date"
-          value={startDate}
-          onChange={handleStartDateChange}
+          value={tempStartDate}
+          onChange={(e) => setTempStartDate(e.target.value)}
           placeholder="Start Date"
         />
         <input
           type="date"
-          value={endDate}
-          onChange={handleEndDateChange}
+          value={tempEndDate}
+          onChange={(e) => setTempEndDate(e.target.value)}
           placeholder="End Date"
         />
 
