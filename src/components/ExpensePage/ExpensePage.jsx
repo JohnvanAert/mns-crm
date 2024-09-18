@@ -5,25 +5,21 @@ import Navbar from '../Navbar/Navbar';
 
 const ExpensesPage = () => {
   const [expenses, setExpenses] = useState([]);
-  const [teams, setTeams] = useState([]); // State for storing team options
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);  // Текущая страница
-  const [totalPages, setTotalPages] = useState(1);  // Общее количество страниц
-  const itemsPerPage = 10;  // Количество записей на страницу
-  const [sortBy, setSortBy] = useState('created_at');  // Поле для сортировки
-  const [sortOrder, setSortOrder] = useState('asc');  // Порядок сортировки
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);  // State для количества записей на страницу
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('asc');
 
-  // State для временных значений фильтров
-  const [tempWebmasterFilter, setTempWebmasterFilter] = useState('');  
+  const [tempWebmasterFilter, setTempWebmasterFilter] = useState('');
   const [tempAmountFilter, setTempAmountFilter] = useState('');
   const [tempTeamFilter, setTempTeamFilter] = useState('');
   const [tempStartDate, setTempStartDate] = useState('');
   const [tempEndDate, setTempEndDate] = useState('');
-  
 
-  // State для примененных фильтров
   const [appliedFilters, setAppliedFilters] = useState({
     webmasterFilter: '',
     amountFilter: '',
@@ -42,7 +38,7 @@ const ExpensesPage = () => {
             offset: (currentPage - 1) * itemsPerPage,
             sortBy: sortBy,
             sortOrder: sortOrder,
-            webmaster: appliedFilters.webmasterFilter || null,  // Используем примененные фильтры
+            webmaster: appliedFilters.webmasterFilter || null,
             amount: appliedFilters.amountFilter || null,
             team: appliedFilters.teamFilter || null,
             startDate: appliedFilters.startDate || null,
@@ -60,14 +56,13 @@ const ExpensesPage = () => {
     };
 
     fetchExpenses();
-  }, [currentPage, sortBy, sortOrder, appliedFilters]);  // Добавляем зависимости от примененных фильтров
+  }, [currentPage, sortBy, sortOrder, appliedFilters, itemsPerPage]);  // Добавляем зависимость от itemsPerPage
 
-  // Fetch the list of teams when component mounts
   useEffect(() => {
     const fetchTeams = async () => {
       try {
         const response = await axios.get('/api/teams');
-        setTeams(response.data.teams);  // Assuming API returns an array of team objects
+        setTeams(response.data.teams);
       } catch (error) {
         console.error('Failed to fetch teams:', error);
       }
@@ -98,7 +93,6 @@ const ExpensesPage = () => {
   };
 
   const handleFilterSubmit = () => {
-    // Применяем фильтры
     setAppliedFilters({
       webmasterFilter: tempWebmasterFilter,
       amountFilter: tempAmountFilter,
@@ -106,7 +100,12 @@ const ExpensesPage = () => {
       startDate: tempStartDate,
       endDate: tempEndDate,
     });
-    setCurrentPage(1);  // Сбрасываем на первую страницу при фильтрации
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1); // Сбросить на первую страницу
   };
 
   if (loading) {
@@ -146,7 +145,6 @@ const ExpensesPage = () => {
           ))}
         </select>
 
-        {/* Фильтры по датам */}
         <input
           type="date"
           value={tempStartDate}
@@ -161,6 +159,15 @@ const ExpensesPage = () => {
         />
 
         <button onClick={handleFilterSubmit}>Применить фильтры</button>
+
+        {/* Количество записей на странице */}
+        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
+          <option value={10}>10</option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+          <option value={75}>75</option>
+          <option value={100}>100</option>
+        </select>
       </div>
 
       {expenses.length === 0 ? (
