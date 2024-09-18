@@ -10,22 +10,29 @@ const ExpensesPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);  // State для количества записей на страницу
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('asc');
+
+  // Получаем текущую дату и дату начала текущего месяца
+  const currentDate = new Date();
+  const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  
+  // Форматируем дату для полей ввода
+  const formatDate = (date) => date.toISOString().split('T')[0];
 
   const [tempWebmasterFilter, setTempWebmasterFilter] = useState('');
   const [tempAmountFilter, setTempAmountFilter] = useState('');
   const [tempTeamFilter, setTempTeamFilter] = useState('');
-  const [tempStartDate, setTempStartDate] = useState('');
-  const [tempEndDate, setTempEndDate] = useState('');
+  const [tempStartDate, setTempStartDate] = useState(formatDate(startOfMonth));
+  const [tempEndDate, setTempEndDate] = useState(formatDate(currentDate));
 
   const [appliedFilters, setAppliedFilters] = useState({
     webmasterFilter: '',
     amountFilter: '',
     teamFilter: '',
-    startDate: '',
-    endDate: '',
+    startDate: formatDate(startOfMonth),
+    endDate: formatDate(currentDate),
   });
 
   useEffect(() => {
@@ -56,7 +63,7 @@ const ExpensesPage = () => {
     };
 
     fetchExpenses();
-  }, [currentPage, sortBy, sortOrder, appliedFilters, itemsPerPage]);  // Добавляем зависимость от itemsPerPage
+  }, [currentPage, sortBy, sortOrder, appliedFilters, itemsPerPage]);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -105,8 +112,11 @@ const ExpensesPage = () => {
 
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Сбросить на первую страницу
+    setCurrentPage(1);
   };
+
+  // Вычисление общей суммы расходов за текущую страницу
+  const totalExpensesAmount = expenses.reduce((total, expense) => total + parseFloat(expense.amount), 0);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -158,7 +168,7 @@ const ExpensesPage = () => {
           placeholder="End Date"
         />
 
-        <button onClick={handleFilterSubmit}>Применить фильтры</button>
+        <button className="apply-filters-button" onClick={handleFilterSubmit}>Применить фильтры</button>
 
         {/* Количество записей на странице */}
         <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
@@ -226,6 +236,11 @@ const ExpensesPage = () => {
               </button>
             ))}
             <button onClick={handleNextPage} disabled={currentPage === totalPages}>Next</button>
+          </div>
+
+          {/* Общие расходы за выбранный период */}
+          <div className="total-expenses">
+            <p>Общие расходы за выбранный период: {totalExpensesAmount.toFixed(2)}</p>
           </div>
         </div>
       )}
