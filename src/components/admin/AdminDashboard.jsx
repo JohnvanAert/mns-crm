@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axiosConfig';
 import './AdminDashboard.scss';
 import Navbar from '../Navbar/Navbar';
+import AddUserModal from '../add-user/AddUserModal';
 
 const AdminDashboard = () => {
   const [teamsData, setTeamsData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchTeamsData = async () => {
@@ -62,6 +64,8 @@ const AdminDashboard = () => {
         renderTable(teamName, groupedTeams[teamName])
       )}
       </div>
+      <button onClick={() => setIsModalOpen(true)}>Add User</button>
+      <AddUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
