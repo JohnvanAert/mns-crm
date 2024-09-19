@@ -13,7 +13,7 @@ const ExpensesPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('asc');
-
+  const [role, setRole] = useState(null);
   // Получаем текущую дату и дату начала текущего месяца
   const currentDate = new Date();
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -77,6 +77,21 @@ const ExpensesPage = () => {
 
     fetchTeams();
   }, []);
+
+  useEffect(() => {
+    // Получаем данные пользователя, включая роль
+    const fetchUserRole = async () => {
+      try {
+        const response = await axios.get('/api/user');
+        setRole(response.data.role); // Сохраняем роль пользователя
+      } catch (error) {
+        console.error('Failed to fetch user role:', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
+
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -145,7 +160,7 @@ const ExpensesPage = () => {
           value={tempAmountFilter}
           onChange={(e) => setTempAmountFilter(e.target.value)}
         />
-
+        {role === 'admin' && (
         <select value={tempTeamFilter} onChange={(e) => setTempTeamFilter(e.target.value)}>
           <option value="">All Teams</option>
           {teams.map((team) => (
@@ -154,7 +169,7 @@ const ExpensesPage = () => {
             </option>
           ))}
         </select>
-
+        )}
         <input
           type="date"
           value={tempStartDate}

@@ -9,7 +9,7 @@ const ProfilePage = () => {
         email: '',
         password: '',
     });
-    const [isEditable, setIsEditable] = useState(false); // Добавляем состояние для редактирования
+    const [isEditable, setIsEditable] = useState(false);
 
     // Fetch user data when the component mounts
     useEffect(() => {
@@ -55,8 +55,12 @@ const ProfilePage = () => {
     };
 
     const handleCancelClick = () => {
-        setIsEditable(false); // Отключаем режим редактирования
-        // Можно также обновить поля до начальных значений, если это нужно
+        setIsEditable(false); // Отключаем режим редактирования и сбрасываем данные формы
+        // Снова запрашиваем данные профиля, чтобы сбросить поля к исходным значениям
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            password: '', // Очищаем пароль
+        }));
     };
 
     return (
@@ -104,11 +108,12 @@ const ProfilePage = () => {
                                 <button type="submit" className="save-btn">Save</button>
                                 <button type="button" className="cancel-btn" onClick={handleCancelClick}>Cancel</button>
                             </>
-                        ) : (
-                            <button type="button" className="edit-btn" onClick={handleEditClick}>Edit</button>
-                        )}
+                        ) : null}
                     </div>
                 </form>
+                {!isEditable && (
+                    <button type="button" className="edit-btn" onClick={handleEditClick}>Edit</button>
+                )}
             </div>
         </div>
     );
