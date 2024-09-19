@@ -1,53 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axiosConfig';
+import './modal.scss';
 
 const AddUserModal = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [team_id, setTeamId] = useState(''); // для хранения выбранной команды
-  const [teams, setTeams] = useState([]);   // для хранения списка команд
+  const [team_id, setTeamId] = useState('');
+  const [teams, setTeams] = useState([]);
   const [verificationCode, setVerificationCode] = useState('');
-  const [step, setStep] = useState(1); // Step 1: User form, Step 2: Verification code
+  const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null); // Для сообщения об успехе
+  const [successMessage, setSuccessMessage] = useState('');
+  const [timer, setTimer] = useState(600); // 10 минут
 
   useEffect(() => {
-    // Получаем список команд при монтировании компонента
     const fetchTeams = async () => {
       try {
-        const response = await axios.get('/api/teams'); // API для получения списка команд
+        const response = await axios.get('/api/teams');
         setTeams(response.data.teams);
       } catch (err) {
         console.error('Failed to fetch teams:', err);
       }
     };
-
     fetchTeams();
   }, []);
 
-  const validateForm = () => {
-    // Проверяем, заполнены ли все поля
-    if (!username || !email || !password || !team_id) {
-      setError('All fields are required');
-      return false;
+  useEffect(() => {
+    if (step === 2 && timer > 0) {
+      const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+      return () => clearInterval(interval);
     }
-    return true;
-  };
+  }, [step, timer]);
 
   const handleAddUser = async () => {
-    if (!validateForm()) return;
+    if (!username || !email || !password || !team_id) {
+      setError('All fields are required');
+      return;
+    }
 
     try {
-      const response = await axios.post('/api/admin/add-user', { 
-        username, 
-        email, 
-        password, 
-        team_id // Отправляем выбранный team_id
-      });
+      const response = await axios.post('/api/admin/add-user', { username, email, password, team_id });
       if (response.data.success) {
-        setStep(2);  // Переходим на шаг подтверждения кода
-        setError(null); // Очищаем ошибки
+        setStep(2);
+        setTimer(600); // 10 минут
+        setSuccessMessage('Verification code sent');
       } else {
         setError('Failed to send verification code');
       }
@@ -58,19 +55,13 @@ const AddUserModal = ({ isOpen, onClose }) => {
 
   const handleVerifyCode = async () => {
     try {
-      const response = await axios.post('/api/admin/verify-code', {
-        username, 
-        email, 
-        verificationCode, 
-        password, 
-        team_id
-      });
+      const response = await axios.post('/api/admin/verify-code', { username, email, verificationCode, password, team_id });
       if (response.data.success) {
-        setSuccess('User successfully added');
-        setError(null); // Убираем ошибку
+        setSuccessMessage('User successfully added');
         setTimeout(() => {
-          onClose();  // Закрыть модальное окно через 2 секунды
-        }, 2000);
+          setSuccessMessage('');
+          onClose();
+        }, 3000);
       } else {
         setError('Invalid verification code');
       }
@@ -134,10 +125,11 @@ const AddUserModal = ({ isOpen, onClose }) => {
               onChange={(e) => setVerificationCode(e.target.value)}
             />
             <button onClick={handleVerifyCode}>Verify and Add User</button>
+            <p>{`Time remaining: ${Math.floor(timer / 60)}:${timer % 60}`}</p>
           </div>
         )}
+        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
         <button onClick={onClose}>Close</button>
       </div>
     </div>
