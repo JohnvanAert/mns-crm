@@ -35,23 +35,28 @@ const AddUserModal = ({ isOpen, onClose }) => {
 
   const handleAddUser = async () => {
     if (!username || !email || !password || !team_id) {
-      setError('All fields are required');
+      setError('Все поля обязательны для заполнения');
       return;
     }
-
+  
     try {
       const response = await axios.post('/api/admin/add-user', { username, email, password, team_id });
+      
       if (response.data.success) {
         setStep(2);
         setTimer(600); // 10 минут
-        setSuccessMessage('Verification code sent');
-      } else {
-        setError('Failed to send verification code');
+        setSuccessMessage('Код подтверждения отправлен');
       }
     } catch (err) {
-      setError('Failed to add user');
+      // Обрабатываем ошибку сервера
+      if (err.response && err.response.status === 400) {
+        setError(err.response.data.message); // Сообщение от сервера
+      } else {
+        setError('Ошибка при добавлении пользователя');
+      }
     }
   };
+  
 
   const handleVerifyCode = async () => {
     try {
