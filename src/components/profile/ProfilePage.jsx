@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from '../../api/axiosConfig';
 import './ProfilePage.scss';
 import Navbar from '../Navbar/Navbar';
@@ -7,17 +7,26 @@ const ProfilePage = () => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        password: '',
+        avatar: '', // Поле для аватарки
     });
-    const [isEditable, setIsEditable] = useState(false);
+    const [isEditable, setIsEditable] = useState({
+        username: false,
+        email: false,
+        password: false,
+    });
 
-    // Fetch user data when the component mounts
+    const [resetCode, setResetCode] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null); // Для хранения выбранного файла
+    const fileInputRef = useRef(null); // Ref для скрытого инпута
+
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
                 const response = await axios.get('/api/profile');
-                const { username, email } = response.data;
-                setFormData({ username, email, password: '' }); // Do not fill password field from response
+                const { username, email, avatar } = response.data;
+                setFormData({ username, email, avatar });
             } catch (error) {
                 console.error('Error fetching user profile:', error);
             }
@@ -34,13 +43,53 @@ const ProfilePage = () => {
         });
     };
 
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]); // Сохраняем выбранный файл
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setFormData({ ...formData, avatar: reader.result }); // Предварительный просмотр
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    const handleAvatarClick = () => {
+        fileInputRef.current.click(); // Открываем скрытый input при клике на аватар
+    };
+
+    const handleEditClick = (field) => {
+        setIsEditable((prevState) => ({
+            ...prevState,
+            [field]: !prevState[field], // Включаем или выключаем редактирование для конкретного поля
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const updatedData = new FormData(); // Используем FormData для отправки файла
+
+        // Добавляем текстовые данные
+        updatedData.append('username', formData.username);
+        updatedData.append('email', formData.email);
+
+        // Если выбран файл, добавляем его
+        if (selectedFile) {
+            updatedData.append('avatar', selectedFile);
+        }
+
         try {
-            const response = await axios.post('/api/profile/update', formData);
+            const response = await axios.post('/api/profile/update', updatedData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             if (response.data.success) {
                 alert('Profile updated successfully!');
-                setIsEditable(false); // После успешного сохранения выключаем режим редактирования
+                setIsEditable({
+                    username: false,
+                    email: false,
+                    password: false,
+                });
+                setSelectedFile(null); // Сбросить выбранный файл после успешного обновления
             } else {
                 alert('Failed to update profile.');
             }
@@ -50,17 +99,42 @@ const ProfilePage = () => {
         }
     };
 
-    const handleEditClick = () => {
-        setIsEditable(true); // Включаем режим редактирования
+    const handlePasswordChangeClick = async () => {
+        try {
+            await axios.post('/api/forgot-password', { email: formData.email });
+            alert('Password reset code sent to your email.');
+        } catch (error) {
+            console.error('Error sending reset code:', error);
+            alert('Failed to send reset code.');
+        }
     };
 
-    const handleCancelClick = () => {
-        setIsEditable(false); // Отключаем режим редактирования и сбрасываем данные формы
-        // Снова запрашиваем данные профиля, чтобы сбросить поля к исходным значениям
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            password: '', // Очищаем пароль
-        }));
+    const handleResetPassword = async () => {
+        if (newPassword !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+
+        try {
+            const response = await axios.post('/api/reset-password', {
+                email: formData.email,
+                resetCode,
+                newPassword,
+            });
+
+            if (response.data.success) {
+                alert('Password reset successfully!');
+                setResetCode('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setIsEditable({ ...isEditable, password: false });
+            } else {
+                alert('Invalid reset code or error resetting password.');
+            }
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            alert('An error occurred while resetting the password.');
+        }
     };
 
     return (
@@ -77,8 +151,11 @@ const ProfilePage = () => {
                                 name="username"
                                 value={formData.username}
                                 onChange={handleInputChange}
-                                disabled={!isEditable} // Поле заблокировано, если не в режиме редактирования
+                                disabled={!isEditable.username}
                             />
+                            <button type="button" onClick={() => handleEditClick('username')}>
+                                {isEditable.username ? 'Save' : 'Edit'}
+                            </button>
                         </div>
                         <div className="form-group">
                             <label>Email:</label>
@@ -87,36 +164,85 @@ const ProfilePage = () => {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleInputChange}
-                                disabled={!isEditable} // Поле заблокировано, если не в режиме редактирования
+                                disabled={!isEditable.email}
+                            />
+                            <button type="button" onClick={() => handleEditClick('email')}>
+                                {isEditable.email ? 'Save' : 'Edit'}
+                            </button>
+                        </div>
+                        <div className="form-group">
+                            <label>Avatar:</label>
+                            <div className="avatar-container" onClick={handleAvatarClick}>
+                                <img
+                                    src={formData.avatar || '/path-to-placeholder-avatar.png'}
+                                    alt="User Avatar"
+                                    className="avatar"
+                                />
+                                <span className="edit-label">Edit</span>
+                            </div>
+                            <input
+                                type="file"
+                                name="avatar"
+                                onChange={handleFileChange}
+                                ref={fileInputRef}
+                                style={{ display: 'none' }} // Скрываем input
                             />
                         </div>
-                        {isEditable && ( // Поле для пароля показывается только при редактировании
+                    </div>
+
+                    <button type="submit">Save Changes</button> {/* Кнопка сабмита изменений */}
+                </form>
+
+                <div className="password-change">
+                    <div className="form-group">
+                        <label>Password:</label>
+                        <button type="button" onClick={() => handleEditClick('password')}>
+                            {isEditable.password ? 'Cancel' : 'Edit Password'}
+                        </button>
+                    </div>
+
+                    {isEditable.password && (
+                        <>
                             <div className="form-group">
-                                <label>Password (leave blank to keep unchanged):</label>
+                                <label>Reset Code:</label>
                                 <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
+                                    type="text"
+                                    name="resetCode"
+                                    value={resetCode}
+                                    onChange={(e) => setResetCode(e.target.value)}
                                 />
                             </div>
-                        )}
-                    </div>
-                    <div className="profile-actions">
-                        {isEditable ? (
-                            <>
-                                <button type="submit" className="save-btn">Save</button>
-                                <button type="button" className="cancel-btn" onClick={handleCancelClick}>Cancel</button>
-                            </>
-                        ) : null}
-                    </div>
-                </form>
-                {!isEditable && (
-                    <button type="button" className="edit-btn" onClick={handleEditClick}>Edit</button>
-                )}
+                            <div className="form-group">
+                                <label>New Password:</label>
+                                <input
+                                    type="password"
+                                    name="newPassword"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Confirm New Password:</label>
+                                <input
+                                    type="password"
+                                    name="confirmPassword"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                            </div>
+
+                            <button type="button" onClick={handlePasswordChangeClick}>
+                                Send Reset Code
+                            </button>
+                            <button type="button" onClick={handleResetPassword}>
+                                Reset Password
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );
 };
-    
+
 export default ProfilePage;

@@ -11,6 +11,7 @@ import AddRequestForm from './components/user/AddRequestForm';
 import ExpensesPage from './components/ExpensePage/ExpensePage';
 import ProfilePage from './components/profile/ProfilePage';
 import ProductsPage from './components/product/ProductPage';
+import ProductDetailPage from './components/product/ProductDetailPage'
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/expenses" element={<ExpensesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/user/add-request" element={<AddRequestForm />} />
         <Route
           path="/admin"

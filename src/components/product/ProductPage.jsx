@@ -4,7 +4,6 @@ import './ProductPage.scss'; // Import the SCSS file
 import ProductCard from './ProductCard';
 import Navbar from '../Navbar/Navbar';
 
-
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +15,7 @@ const ProductsPage = () => {
     avgPayout: '',
     capacity: '',
     approvalRate: '',
-    image: null,
+    image_url: '',
   });
 
   // Fetching products from the server
@@ -34,6 +33,17 @@ const ProductsPage = () => {
 
     fetchProducts();
   }, []);
+
+  // Handling product deletion
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await axios.delete(`/api/products/${productId}`);
+      setProducts(products.filter(product => product.id !== productId));
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      setError('Failed to delete product.');
+    }
+  };
 
   // Handling form input changes
   const handleChange = (e) => {
@@ -57,10 +67,17 @@ const ProductsPage = () => {
     try {
       const formDataToSend = new FormData();
       for (const key in formData) {
+        console.log(`${key}: ${formData[key]}`);  // Проверьте, что все поля добавлены
         formDataToSend.append(key, formData[key]);
       }
-
-      await axios.post('/api/products', formDataToSend);
+  
+      // Если используете axios, нужно явно указать заголовок multipart/form-data
+      await axios.post('/api/products', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
       setFormData({
         name: '',
         description: '',
@@ -68,16 +85,18 @@ const ProductsPage = () => {
         avgPayout: '',
         capacity: '',
         approvalRate: '',
-        image: null,
+        image_url: '',
       });
-
-      // Re-fetch products after successful addition
+  
+      // Повторный запрос для обновления списка продуктов
       const response = await axios.get('/api/products');
       setProducts(response.data);
     } catch (error) {
+      console.error(error);
       setError('Failed to add product.');
     }
   };
+  
 
   if (loading) {
     return <div className="products-page__loading">Loading...</div>;
@@ -186,9 +205,9 @@ const ProductsPage = () => {
 
       {/* Product cards */}
       <div className="products-page__grid">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      {products.map((product) => {
+  return <ProductCard key={product.id} product={product} onDelete={handleDeleteProduct}/>;
+})}
       </div>
     </div>
     </div>
