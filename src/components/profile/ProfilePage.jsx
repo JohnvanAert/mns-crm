@@ -7,7 +7,7 @@ const ProfilePage = () => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        avatar: '', // Поле для аватарки
+        image: '', // Поле для аватарки
     });
     const [isEditable, setIsEditable] = useState({
         username: false,
@@ -25,8 +25,8 @@ const ProfilePage = () => {
         const fetchUserProfile = async () => {
             try {
                 const response = await axios.get('/api/profile');
-                const { username, email, avatar } = response.data;
-                setFormData({ username, email, avatar });
+                const { username, email, image } = response.data;
+                setFormData({ username, email, image });
             } catch (error) {
                 console.error('Error fetching user profile:', error);
             }
@@ -47,7 +47,7 @@ const ProfilePage = () => {
         setSelectedFile(e.target.files[0]); // Сохраняем выбранный файл
         const reader = new FileReader();
         reader.onloadend = () => {
-            setFormData({ ...formData, avatar: reader.result }); // Предварительный просмотр
+            setFormData({ ...formData, image: reader.result }); // Предварительный просмотр
         };
         reader.readAsDataURL(e.target.files[0]);
     };
@@ -66,30 +66,42 @@ const ProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const updatedData = new FormData(); // Используем FormData для отправки файла
-
+    
         // Добавляем текстовые данные
         updatedData.append('username', formData.username);
         updatedData.append('email', formData.email);
-
+    
         // Если выбран файл, добавляем его
         if (selectedFile) {
-            updatedData.append('avatar', selectedFile);
+            updatedData.append('image', selectedFile);
         }
-
+    
         try {
             const response = await axios.post('/api/profile/update', updatedData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+    
             if (response.data.success) {
                 alert('Profile updated successfully!');
+    
+                // Обновляем изображение аватарки сразу после успешного обновления
+                if (selectedFile) {
+                    // Обновляем URL изображения на основе ответа сервера
+                    const imageUrl = `${axios.defaults.baseURL}${response.data.imageUrl}`;
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        image: imageUrl, // Обновляем поле изображения
+                    }));
+                }
+    
                 setIsEditable({
                     username: false,
                     email: false,
                     password: false,
                 });
-                setSelectedFile(null); // Сбросить выбранный файл после успешного обновления
+                setSelectedFile(null); // Сбрасываем выбранный файл после успешного обновления
             } else {
                 alert('Failed to update profile.');
             }
@@ -98,7 +110,7 @@ const ProfilePage = () => {
             alert('An error occurred while updating the profile.');
         }
     };
-
+    
     const handlePasswordChangeClick = async () => {
         try {
             await axios.post('/api/forgot-password', { email: formData.email });
@@ -173,16 +185,17 @@ const ProfilePage = () => {
                         <div className="form-group">
                             <label>Avatar:</label>
                             <div className="avatar-container" onClick={handleAvatarClick}>
-                                <img
-                                    src={formData.avatar || '/path-to-placeholder-avatar.png'}
-                                    alt="User Avatar"
-                                    className="avatar"
-                                />
+                            <img
+                            src={formData.image.startsWith('http') ? formData.image : `${axios.defaults.baseURL}${formData.image}`}
+                            alt="User Avatar"
+                            className="avatar"
+                        />
+
                                 <span className="edit-label">Edit</span>
                             </div>
                             <input
                                 type="file"
-                                name="avatar"
+                                name="image"
                                 onChange={handleFileChange}
                                 ref={fileInputRef}
                                 style={{ display: 'none' }} // Скрываем input
