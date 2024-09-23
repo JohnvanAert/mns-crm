@@ -52,4 +52,17 @@
     font-size: 16px;
     text-align: center; // Центровка текста в ячейках данных
   }
+  .delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .delete-button:hover {
+    background-color: darkred;
+  }
+  
 }
