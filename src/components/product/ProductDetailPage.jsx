@@ -190,6 +190,7 @@ const ProductDetailPage = () => {
                       type="file"
                       id="image-upload-input"
                       name="image"
+                      accept="image/*"
                       className="file-input"
                       onChange={handleImageChange}
                     />

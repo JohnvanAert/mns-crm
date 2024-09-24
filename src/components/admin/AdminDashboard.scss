@@ -64,5 +64,16 @@
   .delete-button:hover {
     background-color: darkred;
   }
-  
+  .delete-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}
+
 }

@@ -186,16 +186,20 @@ const ProfilePage = () => {
                             <label>Avatar:</label>
                             <div className="avatar-container" onClick={handleAvatarClick}>
                             <img
-                            src={formData.image.startsWith('http') ? formData.image : `${axios.defaults.baseURL}${formData.image}`}
-                            alt="User Avatar"
-                            className="avatar"
-                        />
+    src={formData.image && formData.image.startsWith('http') 
+        ? formData.image 
+        : `${axios.defaults.baseURL}${formData.image || '/uploads/images/profile.png'}`}  // добавляем fallback на случай, если image == null
+    alt="User Avatar"
+    className="avatar"
+/>
+
 
                                 <span className="edit-label">Edit</span>
                             </div>
                             <input
                                 type="file"
                                 name="image"
+                                accept="image/*"
                                 onChange={handleFileChange}
                                 ref={fileInputRef}
                                 style={{ display: 'none' }} // Скрываем input

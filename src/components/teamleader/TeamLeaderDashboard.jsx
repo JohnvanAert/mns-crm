@@ -80,7 +80,7 @@ const TeamLeaderDashboard = () => {
             {teamData.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
-                <td>{user.username}</td>
+                <td>{user.name}</td>
                 <td>{user.role}</td>
               </tr>
             ))}
