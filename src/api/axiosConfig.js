@@ -5,4 +5,5 @@ const api = axios.create({
   withCredentials: true,  // Важно для работы с сессиями и куки
 });
 
+
 export default api;
